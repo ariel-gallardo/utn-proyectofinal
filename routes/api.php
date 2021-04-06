@@ -21,4 +21,5 @@ Route::post('usuario/loguearse', [UsuarioController::class, 'loguear']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('usuario/desloguearse', [UsuarioController::class, 'desloguear']);
     Route::delete('usuario/borrar',[UsuarioController::class, 'borrar']);
+    Route::put('usuario/modificar',[UsuarioController::class, 'modificar']);
 });

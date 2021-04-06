@@ -65,4 +65,41 @@ class UsuarioController extends Controller
         }
     }
 
+    public function modificar(Request $request){
+        $id = $request->user()->id;
+        if(isset($id)){
+            $usuario = Usuario::find($id);
+            if(isset($usuario)){
+                if (isset($request->clave) || isset($request->correo)) {
+                    $request->validate([
+                        'correo' => 'sometimes | required | unique:usuarios| email',
+                        'clave' => 'sometimes | required | confirmed | string'
+                    ]);
+                    if(Hash::check($request->clave, $usuario->clave)){
+                        $error = \Illuminate\Validation\ValidationException::withMessages([
+                            'clave' => ['Same password'],
+                        ]);
+                        throw $error;
+                    }
+                    $usuario->save();
+                    $request->user()->currentAccessToken()->delete();
+                    return response(
+                        [
+                            'mensaje' => 'Usuario modificado satisfactoriamente',
+                            'usuario' => $usuario,
+                            'token' => $usuario->createToken('BuenSabor')->plainTextToken
+                        ],
+                        200
+                    );
+                } else{
+                    $request->validate([
+                        'correo' => 'required',
+                        'clave' => 'required'
+                    ]);
+                }
+            }
+        }
+        return response(['mensaje' => 'falta el token'], 405);
+    }
+
 }
