@@ -10,4 +10,13 @@ class ArticuloManufacturadoDetalle extends Model
 {
     use HasFactory, SoftDeletes;
     public $timestamps = false;
+
+    public function articuloManufacturado(){
+        return $this->hasOne(ArticuloManufacturado::class);
+    }
+
+    public function articuloInsumo(){
+        return $this->hasOne(ArticuloInsumo::class);
+    }
+
 }

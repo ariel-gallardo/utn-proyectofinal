@@ -10,4 +10,12 @@ class RubroArticulo extends Model
 {
     use HasFactory, SoftDeletes;
     public $timestamps = false;
+
+    public function rubroArticulos(){
+        return $this->belongsToMany(RubroArticulo::class);
+    }
+
+    public function articuloInsumos(){
+        return $this->belongsToMany(ArticuloInsumo::class);
+    }
 }

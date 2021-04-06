@@ -10,4 +10,8 @@ class RubroGeneral extends Model
 {
     use HasFactory, SoftDeletes;
     public $timestamps = false;
+
+    public function articuloManufacturados(){
+        return $this->belongsToMany(ArticuloManufacturado::class);
+    }
 }
