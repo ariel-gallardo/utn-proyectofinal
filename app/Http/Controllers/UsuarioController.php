@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
@@ -16,7 +17,7 @@ class UsuarioController extends Controller
 
         $usuario = Usuario::create([
             'correo' => $request->correo,
-            'clave' => bcrypt($request->clave)
+            'clave' => Hash::make($request->clave)
         ]);
 
         return response([
@@ -26,59 +27,42 @@ class UsuarioController extends Controller
         201);
     }
 
+    public function loguear(Request $request){
+        $request->validate([
+            'correo' => 'required | email',
+            'clave' => 'required | string'
+        ]);
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+        $usuario = Usuario::where('correo',$request->correo)->first();
+
+        if(isset($usuario)){
+            if (Hash::check($request->clave, $usuario->clave)) {
+                return response([
+                    'usuario' => $usuario,
+                    'token' => $usuario->createToken('BuenSabor')->plainTextToken
+                ], 200);
+            }
+        }
+
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+    public function desloguear(Request $request){
+        $request->user()->currentAccessToken()->delete();
+        return response(['mensaje' => 'sesion cerrada'],200);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function borrar(Request $request){
+        $usuario = Usuario::find($request->user()->id);
+        if(isset($usuario)){
+            $token = $request->user()->currentAccessToken();
+            if(isset($token)){
+                $token->delete();
+                $usuario->delete();
+                return response(['mensaje' => 'usuario eliminado'], 200);
+            }else{
+                return response(['mensaje' => 'falta el token'], 405);
+            }
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
