@@ -18,7 +18,7 @@ class CreateUsuariosTable extends Migration
                 $table->string('correo');
                 $table->string('clave');
                 $table->unsignedBigInteger('persona_id')->nullable();
-                $table->foreign('persona_id')->references('id')->on('personas');
+                $table->foreign('persona_id')->references('id')->on('personas')->onDelete('cascade');
                 $table->unsignedBigInteger('rol_id')->default(5);
                 $table->foreign('rol_id')->references('id')->on('rols');
             $table->softDeletes();
