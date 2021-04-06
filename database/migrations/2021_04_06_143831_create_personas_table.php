@@ -18,7 +18,7 @@ class CreatePersonasTable extends Migration
                 $table->string('nombre');
                 $table->string('apellido');
                 $table->bigInteger('telefono');
-                $table->unsignedBigInteger('domicilio_id');
+                $table->unsignedBigInteger('domicilio_id')->nullable();
                 $table->foreign('domicilio_id')->references('id')->on('domicilios');
             $table->softDeletes();
         });

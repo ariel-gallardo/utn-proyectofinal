@@ -24,14 +24,17 @@ class Usuario extends Authenticatable
 
     protected $hidden = [
         'clave',
-        'deleted_at'
+        'deleted_at',
+        'persona_id',
+        'rol_id',
+        'id'
     ];
 
     public function persona(){
-        return $this->hasOne(Persona::class);
+        return $this->belongsTo(Persona::class);
     }
 
     public function rol(){
-        return $this->hasOne(Rol::class);
+        return $this->belongsTo(Rol::class);
     }
 }

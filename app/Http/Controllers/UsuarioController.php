@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Domicilio;
+use App\Models\Persona;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,12 +14,28 @@ class UsuarioController extends Controller
     public function registrar(Request $request){
         $request->validate([
             'correo' => 'required | email | unique:usuarios',
-            'clave' => 'required | confirmed'
+            'clave' => 'required | confirmed',
+            'persona.nombre' => 'required | string',
+            'persona.apellido' => 'required | string',
+            'persona.telefono' => 'required | numeric',
+            'domicilio.calle' => 'required | string',
+            'domicilio.numero' => 'required | numeric',
+            'domicilio.localidad' => 'required | string'
         ]);
 
         $usuario = Usuario::create([
             'correo' => $request->correo,
-            'clave' => Hash::make($request->clave)
+            'clave' => Hash::make($request->clave),
+            'persona_id' => Persona::create([
+                'nombre' => $request->persona['nombre'],
+                'apellido' => $request->persona['apellido'],
+                'telefono' => $request->persona['telefono'],
+                'domicilio_id' => Domicilio::create([
+                    'calle' => $request->domicilio['calle'],
+                    'numero' => $request->domicilio['numero'],
+                    'localidad' => $request->domicilio['localidad']
+                ])->id
+            ])->id
         ]);
 
         return response([
@@ -37,6 +55,11 @@ class UsuarioController extends Controller
 
         if(isset($usuario)){
             if (Hash::check($request->clave, $usuario->clave)) {
+
+                $usuario->load('persona');
+                $usuario->persona->load('domicilio');
+                $usuario->load('rol');
+
                 return response([
                     'usuario' => $usuario,
                     'token' => $usuario->createToken('BuenSabor')->plainTextToken

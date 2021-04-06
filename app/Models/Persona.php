@@ -18,9 +18,10 @@ class Persona extends Model
     ];
     protected $hidden=[
         'id',
-        'deleted_at'
+        'deleted_at',
+        'domicilio_id'
     ];
     public function domicilio(){
-        return $this->hasOne(Domicilio::class);
+        return $this->belongsTo(Domicilio::class);
     }
 }
