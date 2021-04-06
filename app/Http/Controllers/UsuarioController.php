@@ -41,7 +41,7 @@ class UsuarioController extends Controller
 
         return response(
             [
-                'usuario' => $usuario,
+                //'usuario' => $usuario,
                 'token' => $usuario->createToken('BuenSabor')->plainTextToken
             ],
             201
@@ -65,7 +65,7 @@ class UsuarioController extends Controller
                 $usuario->load('rol');
 
                 return response([
-                    'usuario' => $usuario,
+                    //'usuario' => $usuario,
                     'token' => $usuario->createToken('BuenSabor')->plainTextToken
                 ], 200);
             }
