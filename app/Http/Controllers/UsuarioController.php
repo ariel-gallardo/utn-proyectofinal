@@ -116,7 +116,9 @@ class UsuarioController extends Controller
                     ]);
                     throw $error;
                 }
-
+                $usuario->load('persona');
+                $usuario->persona->load('domicilio');
+                $usuario->load('rol');
                 foreach ($request->persona as $campo => $valor) {
                     $usuario->persona[$campo] = $valor;
                 }
@@ -126,7 +128,6 @@ class UsuarioController extends Controller
                 $usuario->persona->domicilio->save();
                 $usuario->persona->save();
                 $usuario->save();
-
                 $token = null;
                 if(isset($request->correo) || isset($request->clave)){
                     $request->user()->currentAccessToken()->delete();
@@ -145,5 +146,13 @@ class UsuarioController extends Controller
             }
         }
         return response(['mensaje' => 'falta el token'], 405);
+    }
+
+    public function ver(Request $request){
+        $usuario = Usuario::find($request->user()->id);
+        $usuario->load('persona');
+        $usuario->persona->load('domicilio');
+        $usuario->load('rol');
+        return response(['usuario' => $usuario],200);
     }
 }
