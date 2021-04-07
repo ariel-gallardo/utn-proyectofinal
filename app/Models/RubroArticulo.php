@@ -11,8 +11,17 @@ class RubroArticulo extends Model
     use HasFactory, SoftDeletes;
     public $timestamps = false;
 
+    protected $fillable = [
+        'rubro_articulo_id',
+        'denominacion'
+    ];
+
+    protected $hidden = [
+        'deleted_at'
+    ];
+
     public function rubroArticulos(){
-        return $this->belongsToMany(RubroArticulo::class);
+        return $this->hasMany(RubroArticulo::class);
     }
 
     public function articuloInsumos(){

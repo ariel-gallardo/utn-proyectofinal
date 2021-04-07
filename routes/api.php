@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RubroController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,3 +25,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('usuario/modificar',[UsuarioController::class, 'modificar']);
     Route::get('usuario/datos',[UsuarioController::class, 'ver']);
 });
+
+Route::resource('cocina/rubro', RubroController::class);
