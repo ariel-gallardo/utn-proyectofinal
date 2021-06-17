@@ -22,5 +22,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('usuario/desloguearse', [UsuarioController::class, 'desloguear']);
     Route::delete('usuario/borrar',[UsuarioController::class, 'borrar']);
     Route::put('usuario/modificar',[UsuarioController::class, 'modificar']);
-    Route::get('usuario/datos',[UsuarioController::class, 'ver']);
-});
+    Route::post('usuario/datos',[UsuarioController::class, 'ver']);
+}); 

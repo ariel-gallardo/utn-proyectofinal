@@ -16,8 +16,10 @@ class Usuario extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'correo',
         'clave',
+        'imagen',
         'rol_id',
         'persona_id'
     ];
@@ -27,7 +29,6 @@ class Usuario extends Authenticatable
         'deleted_at',
         'persona_id',
         'rol_id',
-        'id'
     ];
 
     public function persona(){

@@ -15,19 +15,19 @@ class RolSeeder extends Seeder
     public function run()
     {
         DB::table('rols')->insert([
-            'denominacion' => 'administrador',
-        ]);
-        DB::table('rols')->insert([
-            'denominacion' => 'cocinero',
-        ]);
-        DB::table('rols')->insert([
-            'denominacion' => 'cajero',
+            'denominacion' => 'cliente',
         ]);
         DB::table('rols')->insert([
             'denominacion' => 'delivery',
-        ]);
+            ]);
+            DB::table('rols')->insert([
+                'denominacion' => 'cajero',
+                ]);
         DB::table('rols')->insert([
-            'denominacion' => 'cliente',
-        ]);
+            'denominacion' => 'cocinero',
+            ]);
+                    DB::table('rols')->insert([
+                        'denominacion' => 'administrador',
+                    ]);
     }
 }

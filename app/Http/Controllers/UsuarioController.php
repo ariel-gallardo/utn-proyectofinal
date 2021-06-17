@@ -21,11 +21,13 @@ class UsuarioController extends Controller
             'persona.telefono' => 'required | numeric',
             'domicilio.calle' => 'required | string',
             'domicilio.numero' => 'required | numeric',
-            'domicilio.localidad' => 'required | string'
+            'domicilio.localidad' => 'required | string',
+            'imagen' => 'sometimes| base64image'
         ]);
 
         $usuario = Usuario::create([
             'correo' => $request->correo,
+            'imagen' => $request->imagen,
             'clave' => Hash::make($request->clave),
             'persona_id' => Persona::create([
                 'nombre' => $request->persona['nombre'],
@@ -95,39 +97,33 @@ class UsuarioController extends Controller
 
     public function modificar(Request $request)
     {
-        $id = $request->user()->id;
+        $id = $request->id;
         if (isset($id)) {
             $usuario = Usuario::find($id);
             if (isset($usuario)) {
+                
+                
 
-                $request->validate([
-                    'correo' => 'sometimes | required | unique:usuarios| email',
-                    'clave' => 'sometimes | required | confirmed | string',
-                    'persona.nombre' => 'sometimes | required | string',
-                    'persona.apellido' => 'sometimes | required | string',
-                    'persona.telefono' => 'sometimes | required | numeric',
-                    'domicilio.calle' => 'sometimes | required | string',
-                    'domicilio.numero' => 'sometimes | required | numeric',
-                    'domicilio.localidad' => 'sometimes | required | string'
-                ]);
-                if (Hash::check($request->clave, $usuario->clave)) {
-                    $error = \Illuminate\Validation\ValidationException::withMessages([
-                        'clave' => ['Same password'],
-                    ]);
-                    throw $error;
-                }
+    
+                
                 $usuario->load('persona');
                 $usuario->persona->load('domicilio');
                 $usuario->load('rol');
+
+
                 foreach ($request->persona as $campo => $valor) {
                     $usuario->persona[$campo] = $valor;
                 }
                 foreach ($request->domicilio as $campo => $valor) {
                     $usuario->persona->domicilio[$campo] = $valor;
                 }
-                $usuario->persona->domicilio->save();
-                $usuario->persona->save();
+  
+                $usuario->push();
+                    $usuario->correo = $request->correo;
+                    $usuario->clave = $request->clave;
+                    $usuario->imagen = $request->imagen;
                 $usuario->save();
+                
                 $token = null;
                 if(isset($request->correo) || isset($request->clave)){
                     $request->user()->currentAccessToken()->delete();
