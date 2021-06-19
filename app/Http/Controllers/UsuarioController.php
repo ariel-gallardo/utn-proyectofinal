@@ -43,7 +43,7 @@ class UsuarioController extends Controller
 
         return response(
             [
-                //'usuario' => $usuario,
+                'mensaje' => 'usuario registrado correctamente',
                 'token' => $usuario->createToken('BuenSabor')->plainTextToken
             ],
             201
@@ -66,11 +66,21 @@ class UsuarioController extends Controller
                 $usuario->persona->load('domicilio');
                 $usuario->load('rol');
 
+                $nombre = $usuario->persona->nombre;
+                $apellido = $usuario->persona->apellido;
                 return response([
-                    //'usuario' => $usuario,
+                    'nombre' => "$nombre $apellido",
                     'token' => $usuario->createToken('BuenSabor')->plainTextToken
                 ], 200);
+            }else{
+                return response([
+                    'mensaje' => 'correo /contraseña incorrecta'
+                ], 405);
             }
+        }else{
+            return response([
+                'mensaje' => 'correo /contraseña incorrecta'
+            ], 405);
         }
     }
 
@@ -101,11 +111,7 @@ class UsuarioController extends Controller
         if (isset($id)) {
             $usuario = Usuario::find($id);
             if (isset($usuario)) {
-                
-                
 
-    
-                
                 $usuario->load('persona');
                 $usuario->persona->load('domicilio');
                 $usuario->load('rol');
@@ -114,16 +120,17 @@ class UsuarioController extends Controller
                 foreach ($request->persona as $campo => $valor) {
                     $usuario->persona[$campo] = $valor;
                 }
+
                 foreach ($request->domicilio as $campo => $valor) {
                     $usuario->persona->domicilio[$campo] = $valor;
                 }
-  
+
+                $usuario->correo = $request->correo;
+                $usuario->clave = Hash::make($request->clave);
+                $usuario->imagen = $request->imagen;
+
                 $usuario->push();
-                    $usuario->correo = $request->correo;
-                    $usuario->clave = $request->clave;
-                    $usuario->imagen = $request->imagen;
-                $usuario->save();
-                
+
                 $token = null;
                 if(isset($request->correo) || isset($request->clave)){
                     $request->user()->currentAccessToken()->delete();
@@ -141,7 +148,7 @@ class UsuarioController extends Controller
                 );
             }
         }
-        return response(['mensaje' => 'falta el token'], 405);
+        return response(['mensaje' => 'falta el id'], 405);
     }
 
     public function ver(Request $request){

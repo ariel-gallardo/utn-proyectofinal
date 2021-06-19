@@ -10,6 +10,7 @@ class RubroArticulo extends Model
 {
     use HasFactory, SoftDeletes;
     public $timestamps = false;
+    protected $dates = ['deleted_at'];
     protected $fillable=[
         'id',
         'denominacion',
@@ -23,7 +24,7 @@ class RubroArticulo extends Model
     }
 
     public function subRubroArticulos(){
-        return $this->hasMany(RubroArticulo::class, 'rubro_articulo_id');
+        return $this->hasMany(RubroArticulo::class, 'rubro_articulo_id')->withTrashed();
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\RubroArticulo;
 use Illuminate\Http\Request;
 
@@ -96,22 +97,16 @@ class RubroArticuloController extends Controller
                     'denominacion' => $request->denominacion,
                     'rubro_articulo_id' => $request->rubro_articulo_id
                 ]);
-                return response([
-                    'rubro_articulo' => $rubro_articulo
-                ], 200);
+                return response('Rubro creado correctamente', 200);
             }else{
-                return response([
-                    'No se encontro el padre'
-                ], 405);
+                return response('No se encontro el rubro padre', 405);
             }
 
         }else{
             $rubro_articulo = RubroArticulo::create([
                 'denominacion' => $request->denominacion
             ]);
-            return response([
-                'rubro_articulo' => $rubro_articulo
-            ], 200);
+            return response('rubro creado correctamente', 200);
         }
     }
 
@@ -140,9 +135,7 @@ class RubroArticuloController extends Controller
         if(isset($rA)){
             $rA->denominacion = $request->denominacion;
             $rA->save();
-            return response([
-                'rubro_articulo' => $rA
-            ], 200);
+            return response('editado correctamente', 200);
         }else{
             return response([
                 'rubro_articulo no encontrado'
