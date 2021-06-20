@@ -25,7 +25,7 @@ class RubroArticuloController extends Controller
     public function indexTrashed(Request $request){
         return response(
             [
-                'rubro_articulo' => RubroArticulo::withTrashed()->get()
+                'rubro_articulo' => RubroArticulo::withTrashed()->whereNull('rubro_articulo_id')->get()
             ],200
         );
     }
