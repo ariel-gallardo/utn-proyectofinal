@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\RubroArticulo;
 use Illuminate\Http\Request;
 
+
 class RubroArticuloController extends Controller
 {
     /**
@@ -34,7 +35,7 @@ class RubroArticuloController extends Controller
     {
         $subCategorias = RubroArticulo::withTrashed()
         ->where('id',$request->id)
-        ->with('subRubroArticulos')->get();
+        ->with('subRubroArticulosTrashed')->get();
         if (isset($subCategorias)) {
             return response($subCategorias[0],200);
         }
@@ -75,6 +76,17 @@ class RubroArticuloController extends Controller
             return response([], 200);
         }
 
+    }
+
+    public function articulosByCategoriaTrashed(Request $request)
+    {
+        $ra = RubroArticulo::withTrashed()->where('id',$request->id)->first();
+        $ra->load('articulosTrashed');
+        if (isset($ra)) {
+            return response($ra, 200);
+        } else {
+            return response([], 200);
+        }
     }
 
     /**

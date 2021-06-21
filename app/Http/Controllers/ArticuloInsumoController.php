@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArticuloInsumo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ArticuloInsumoController extends Controller
 {
@@ -51,7 +52,7 @@ class ArticuloInsumoController extends Controller
 
 
         return response(
-            [$request]
+            "el articulo $request->denominacion fue creado exitosamente."
             ,200
         );
     }
@@ -76,7 +77,32 @@ class ArticuloInsumoController extends Controller
      */
     public function update(Request $request, ArticuloInsumo $articuloInsumo)
     {
-        //
+        $request->validate([
+            'denominacion' => 'required | string | unique:articulo_insumos',
+            'precioCompra' => 'required | numeric',
+            'precioVenta' => 'required | numeric',
+            'stockActual' => 'required | integer',
+            'stockMinimo' => 'required | integer',
+            'unidadMedida' => 'required | string',
+            'esInsumo' => 'required | boolean',
+            'rubro_articulos_id' => 'required'
+        ]);
+
+        $articuloInsumo = ArticuloInsumo::withTrashed()->where('id',$request->id)->first();
+        if(isset($articuloInsumo)){
+            $articuloInsumo->denominacion = $request->denominacion;
+            $articuloInsumo->precioCompra = $request->precioCompra;
+            $articuloInsumo->precioVenta = $request->precioVenta;
+            $articuloInsumo->stockActual = $request->stockActual;
+            $articuloInsumo->stockMinimo = $request->stockMinimo;
+            $articuloInsumo->unidadMedida = $request->unidadMedida;
+            $articuloInsumo->esInsumo = $request->esInsumo;
+            $articuloInsumo->rubro_articulos_id = $request->rubro_articulos_id;
+            $articuloInsumo->save();
+            return response("Articulo $articuloInsumo->denominacion modificado satisfactoriamente",200);
+        }else{
+            return response("No se encontro el articulo para modificar", 405);
+        }
     }
 
     /**
@@ -88,5 +114,23 @@ class ArticuloInsumoController extends Controller
     public function destroy(ArticuloInsumo $articuloInsumo)
     {
         //
+    }
+
+    public function destroyDeleted($id)
+    {
+        $aI = ArticuloInsumo::withTrashed()->where('id', $id)->first();
+        if (isset($aI)) {
+            if ($aI->deleted_at === null) {
+                $aI->deleted_at = new \DateTime('NOW');
+                $aI->save();
+                return response('borrado exitosamente', 200);
+            } else {
+                $aI->deleted_at = null;
+                $aI->save();
+                return response('restaurado exitosamente', 200);
+            }
+        } else {
+            return response('no se encontro el insumo', 405);
+        }
     }
 }

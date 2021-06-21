@@ -23,8 +23,18 @@ class RubroArticulo extends Model
         return $this->hasMany(ArticuloInsumo::class, 'rubro_articulos_id');
     }
 
-    public function subRubroArticulos(){
+    public function articulosTrashed()
+    {
+        return $this->hasMany(ArticuloInsumo::class, 'rubro_articulos_id')->withTrashed();
+    }
+
+    public function subRubroArticulosTrashed()
+    {
         return $this->hasMany(RubroArticulo::class, 'rubro_articulo_id')->withTrashed();
+    }
+
+    public function subRubroArticulos(){
+        return $this->hasMany(RubroArticulo::class, 'rubro_articulo_id');
     }
 
 }

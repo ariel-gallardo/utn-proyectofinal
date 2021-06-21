@@ -19,6 +19,8 @@ class CreateArticuloManufacturadosTable extends Migration
             $table->string('denominacion');
             $table->double('precioVenta');
             $table->text('imagen');
+            $table->unsignedBigInteger('rubro_generals_id')->nullable();
+            $table->foreign('rubro_generals_id')->references('id')->on('rubro_generals');
             $table->softDeletes();
         });
     }
