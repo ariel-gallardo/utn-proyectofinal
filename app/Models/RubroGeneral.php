@@ -18,4 +18,14 @@ class RubroGeneral extends Model
         'deleted_at'
     ];
 
+    public function articulos()
+    {
+        return $this->hasMany(ArticuloManufacturado::class, 'rubro_generals_id');
+    }
+
+    public function articulosTrashed()
+    {
+        return $this->hasMany(ArticuloManufacturado::class, 'rubro_generals_id')->withTrashed();
+    }
+
 }

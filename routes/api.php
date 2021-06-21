@@ -4,6 +4,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RubroArticuloController;
 use App\Http\Controllers\ArticuloInsumoController;
 use App\Http\Controllers\RubroGeneralController;
+use App\Http\Controllers\ArticuloManufacturadoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('usuario/registrarse',[UsuarioController::class, 'registrar']);
 Route::post('usuario/loguearse', [UsuarioController::class, 'loguear']);
 
+Route::resource('a_manufacturado', ArticuloManufacturadoController::class, ['except' => ['store', 'update', 'destroy']]);
 Route::resource('r_articulo', RubroArticuloController::class, ['except' => ['store', 'update', 'destroy']]);
 Route::resource('r_generals', RubroGeneralController::class, ['except' => ['store', 'update', 'destroy']]);
 Route::post('r_articulo/hijo',[RubroArticuloController::class, 'indexByPadre']);
@@ -37,9 +39,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
-    Route::resource('r_articulo',RubroArticuloController::class, ['except' => ['index', 'show', 'articulosByCategoria']]);
+    Route::resource('r_articulo',RubroArticuloController::class);
     Route::resource('r_insumo',ArticuloInsumoController::class);
     Route::resource('r_generals', RubroGeneralController::class);
+    Route::resource('a_manufacturado', ArticuloManufacturadoController::class);
 });
 
 Route::middleware(['auth:sanctum'], 'administrador')->group(
@@ -52,5 +55,8 @@ Route::middleware(['auth:sanctum'], 'administrador')->group(
 
         Route::post('r_generals/borrado', [RubroGeneralController::class, 'indexTrashed']);
         Route::delete('r_generals/destroyDeleted/{id}', [RubroGeneralController::class, 'destroyTrashed']);
+
+        Route::post('r_generals/articulos/borrado', [RubroGeneralController::class, 'articulosByCategoriaTrashed']);
+        Route::delete('a_manufacturado/destroyDeleted/{id}', [RubroGeneralController::class, 'destroyTrashed']);
     }
 );

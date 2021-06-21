@@ -25,7 +25,26 @@ class ArticuloManufacturadoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'denominacion' => 'required | string | unique:articulo_manufacturados',
+            'tiempoEstimadoCocina' => 'required | numeric',
+            'precioVenta' => 'required | numeric',
+            'rubro_generals_id' => 'required',
+            'imagen' => 'sometimes| base64image'
+        ]);
+
+        ArticuloManufacturado::create([
+            'denominacion' => $request->denominacion,
+            'tiempoEstimadoCocina' => $request->tiempoEstimadoCocina,
+            'precioVenta' => $request->precioVenta,
+            'imagen' => $request->imagen,
+            'rubro_generals_id' => $request->rubro_generals_id
+        ]);
+
+        return response(
+            "el articulo $request->denominacion fue creado exitosamente.",
+            200
+        );
     }
 
     /**
@@ -48,7 +67,26 @@ class ArticuloManufacturadoController extends Controller
      */
     public function update(Request $request, ArticuloManufacturado $articuloManufacturado)
     {
-        //
+        $request->validate([
+            'denominacion' => 'required | string | unique:articulo_manufacturados',
+            'tiempoEstimadoCocina' => 'required | numeric',
+            'precioVenta' => 'required | numeric',
+            'rubro_generals_id' => 'required',
+            'imagen' => 'sometimes| base64image'
+        ]);
+
+        $articuloInsumo = ArticuloManufacturado::withTrashed()->where('id', $request->id)->first();
+        if (isset($articuloInsumo)) {
+            $articuloInsumo->denominacion = $request->denominacion;
+            $articuloInsumo->precioVenta = $request->precioVenta;
+            $articuloInsumo->tiempoEstimadoCocina = $request->tiempoEstimadoCocina;
+            $articuloInsumo->imagen = $request->imagen;
+            $articuloInsumo->rubro_generals_id = $request->rubro_generals_id;
+            $articuloInsumo->save();
+            return response("Articulo $articuloInsumo->denominacion modificado satisfactoriamente", 200);
+        } else {
+            return response("No se encontro el articulo para modificar", 405);
+        }
     }
 
     /**
@@ -60,5 +98,23 @@ class ArticuloManufacturadoController extends Controller
     public function destroy(ArticuloManufacturado $articuloManufacturado)
     {
         //
+    }
+
+    public function destroyDeleted($id)
+    {
+        $aI = ArticuloManufacturado::withTrashed()->where('id', $id)->first();
+        if (isset($aI)) {
+            if ($aI->deleted_at === null) {
+                $aI->deleted_at = new \DateTime('NOW');
+                $aI->save();
+                return response('borrado exitosamente', 200);
+            } else {
+                $aI->deleted_at = null;
+                $aI->save();
+                return response('restaurado exitosamente', 200);
+            }
+        } else {
+            return response('no se encontro el insumo', 405);
+        }
     }
 }
