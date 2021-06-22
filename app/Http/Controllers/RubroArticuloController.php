@@ -16,11 +16,38 @@ class RubroArticuloController extends Controller
      */
     public function index(Request $request)
     {
-        return response(
-            [
-                'rubro_articulo' => RubroArticulo::all()
-            ], 200
-        );
+        $ra = RubroArticulo::whereNull('rubro_articulo_id')->get();
+
+        if(isset($ra)){
+            return response(
+                $ra
+                , 200
+            );
+        }else{
+            return response(
+                []
+                , 200
+            );
+        }
+
+    }
+
+    public function indexCliente(Request $request)
+    {
+        $ra = RubroArticulo::whereNull('rubro_articulo_id')
+        ->where('visiblecliente',true)->get();
+
+        if (isset($ra)) {
+            return response(
+                $ra,
+                200
+            );
+        } else {
+            return response(
+                [],
+                200
+            );
+        }
     }
 
     public function indexTrashed(Request $request){
@@ -101,7 +128,7 @@ class RubroArticuloController extends Controller
             'denominacion' => 'required | string | unique:rubro_articulos'
         ]);
 
-        if($request->rubro_articulo_id > 0){
+        if(isset($request->rubro_articulo_id)){
             $rA = RubroArticulo::find($request->rubro_articulo_id);
 
             if(isset($rA)){
@@ -169,6 +196,24 @@ class RubroArticuloController extends Controller
             return response('borrado exitosamente', 200);
         }else{
             return response('no se encontro el rubro articulo', 200);
+        }
+
+    }
+
+    public function changeVisibleCliente(Request $request){
+        $rA = RubroArticulo::withTrashed()->where('id',$request->id)->first();
+        if(isset($rA)){
+            if ($rA->visiblecliente == true) {
+                $rA->visiblecliente = false;
+                $rA->save();
+                return response("$rA->denominacion no visible para cliente.", 200);
+            } else {
+                $rA->visiblecliente = true;
+                $rA->save();
+                return response("$rA->denominacion es visible para cliente.", 200);
+            }
+        }else{
+            return response('no se encontro el rubro articulo', 405);
         }
 
     }

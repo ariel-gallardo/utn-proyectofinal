@@ -15,6 +15,7 @@ class RubroArticulo extends Model
         'id',
         'denominacion',
         'rubro_articulo_id',
+        'visiblecliente',
         'deleted_at'
     ];
 

@@ -19,6 +19,14 @@ class ArticuloManufacturado extends Model
         'id',
         'rubro_generals_id'
     ];
+
+    public function ingredientesTrashed(){
+        return $this->hasManyThrough(ArticuloInsumo::class,ArticuloManufacturadoDetalle::class,'articulo_manufacturado_id','id','id', 'articulo_insumo_id')->withTrashedParents();
+    }
+
+    public function ingredientes(){
+
+    }
 }
 
 

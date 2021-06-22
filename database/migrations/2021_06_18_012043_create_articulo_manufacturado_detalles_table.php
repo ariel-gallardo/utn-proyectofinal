@@ -15,6 +15,8 @@ class CreateArticuloManufacturadoDetallesTable extends Migration
     {
         Schema::create('articulo_manufacturado_detalles', function (Blueprint $table) {
             $table->id();
+            $table->double('cantidad');
+            $table->string('unidadMedida');
             $table->unsignedBigInteger('articulo_insumo_id')->nullable();
             $table->foreign('articulo_insumo_id')->references('id')->on('articulo_insumos')->constrained()->index('ai_id');
             $table->unsignedBigInteger('articulo_manufacturado_id')->nullable();

@@ -5,6 +5,7 @@ use App\Http\Controllers\RubroArticuloController;
 use App\Http\Controllers\ArticuloInsumoController;
 use App\Http\Controllers\RubroGeneralController;
 use App\Http\Controllers\ArticuloManufacturadoController;
+use App\Http\Controllers\AMDController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,13 +24,23 @@ Route::post('usuario/registrarse',[UsuarioController::class, 'registrar']);
 Route::post('usuario/loguearse', [UsuarioController::class, 'loguear']);
 
 Route::resource('a_manufacturado', ArticuloManufacturadoController::class, ['except' => ['store', 'update', 'destroy']]);
+
 Route::resource('r_articulo', RubroArticuloController::class, ['except' => ['store', 'update', 'destroy']]);
+Route::post('r_generals/articulos', [RubroGeneralController::class, 'articulosByCategoria']);
+
+Route::get('articulos', [RubroArticuloController::class, 'index']);
+Route::get('articulos/cliente', [RubroArticuloController::class, 'indexCliente']);
+Route::get('manufacturados', [RubroGeneralController::class, 'index']);
+Route::get('articulos/subcategoria/{id}', [RubroArticuloController::class, 'indexByPadre']);
+
+
 Route::resource('r_generals', RubroGeneralController::class, ['except' => ['store', 'update', 'destroy']]);
 Route::post('r_articulo/hijo',[RubroArticuloController::class, 'indexByPadre']);
 
 Route::post('r_insumo/articulos', [RubroArticuloController::class, 'articulosByCategoria']);
 Route::resource('r_insumo', ArticuloInsumoController::class, ['except' => ['store', 'update', 'destroy']]);
 
+Route::post('ingredientes/byArticulo', [ArticuloManufacturadoController::class, 'ingredientes']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('usuario/desloguearse', [UsuarioController::class, 'desloguear']);
@@ -39,6 +50,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
+    Route::resource('ingredientes', AMDController::class);
     Route::resource('r_articulo',RubroArticuloController::class);
     Route::resource('r_insumo',ArticuloInsumoController::class);
     Route::resource('r_generals', RubroGeneralController::class);
@@ -58,5 +70,11 @@ Route::middleware(['auth:sanctum'], 'administrador')->group(
 
         Route::post('r_generals/articulos/borrado', [RubroGeneralController::class, 'articulosByCategoriaTrashed']);
         Route::delete('a_manufacturado/destroyDeleted/{id}', [RubroGeneralController::class, 'destroyTrashed']);
+        Route::put('r_articulo/v_cliente/{id}',[RubroArticuloController::class,'changeVisibleCliente']);
+
+        Route::post('ingredientes/crearTrashed', [AMDController::class,'store']);
+        //Route::post('ingredientes/encontrar', [AMDController::class, 'encontrar']);
+        Route::post('ingredientes/updateTrashed', [AMDController::class, 'update']);
+
     }
 );

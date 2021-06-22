@@ -17,6 +17,7 @@ class CreateRubroArticulosTable extends Migration
             $table->id();
             $table->unsignedBigInteger('rubro_articulo_id')->nullable();
             $table->foreign('rubro_articulo_id')->references('id')->on('rubro_articulos');
+            $table->boolean('visiblecliente')->nullable();
             $table->string('denominacion');
             $table->softDeletes();
         });

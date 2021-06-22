@@ -17,6 +17,26 @@ class ArticuloManufacturadoController extends Controller
         //
     }
 
+    public function ingredientes(Request $request){
+        if($request->trashed){
+            $aM = ArticuloManufacturado::withTrashed()->where('id',$request->id)->first();
+            if($aM){
+                $aM->load('ingredientesTrashed');
+                return response($aM,200);
+            }else{
+                return response('no se encontro el articulo manufacturado',405);
+            }
+        }else{
+            $aM = ArticuloManufacturado::find($request->id);
+            if($aM){
+                $aM->load('ingredientes');
+                return response($aM,200);
+            }else{
+                return response('no se encontro el articulo manufacturado',405);
+            }
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
