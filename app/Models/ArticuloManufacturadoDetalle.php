@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ArticuloManufacturadoDetalle extends Model
 {
+    protected $softDelete = true;
     use HasFactory, SoftDeletes;
     public $timestamps = false;
     protected $fillable = [

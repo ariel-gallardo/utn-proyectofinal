@@ -10,14 +10,15 @@ class ArticuloManufacturado extends Model
 {
     use HasFactory, SoftDeletes;
     public $timestamps = false;
-
+    protected $softDelete = true;
     protected $fillable = [
         'tiempoEstimadoCocina',
         'denominacion',
         'precioVenta',
         'imagen',
         'id',
-        'rubro_generals_id'
+        'rubro_generals_id',
+        'deleted_at'
     ];
 
     public function ingredientesTrashed(){
@@ -25,12 +26,13 @@ class ArticuloManufacturado extends Model
         //return $this->hasManyThrough(ArticuloManufacturadoDetalle::class,ArticuloInsumo::class, 'id', 'articulo_manufacturado_id', 'id', 'id')->withTrashedParents();
         //return $this->belongsToMany(ArticuloInsumo::class,'articulo_manufacturado_detalles', 'articulo_manufacturado_id', 'articulo_insumo_id', 'id', 'id');
         //return $this->with()->get();
-        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot('cantidad')->withTrashed()->select(array('denominacion','articulo_insumos.unidadMedida'));
+        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot(['cantidad', 'articulo_manufacturado_detalles.id as ids', 'articulo_manufacturado_detalles.deleted_at as borrado'])->withTrashed()->select(array('denominacion','articulo_insumos.unidadMedida'));
     }
 
     public function ingredientes(){
-        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot('cantidad')->select(array('denominacion', 'articulo_insumos.unidadMedida'));
+        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot(['cantidad', 'articulo_manufacturado_detalles.id as ids'])->select(array('denominacion', 'articulo_insumos.unidadMedida'));
     }
+
 }
 
 

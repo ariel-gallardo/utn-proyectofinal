@@ -138,7 +138,6 @@ class AMDController extends Controller
     {
         $request->validate([
             'cantidad' => 'required | numeric',
-            'unidadMedida' => 'required | string',
             'articulo_insumo_id' => 'required',
             'articulo_manufacturado_id' => 'required',
         ]);
@@ -159,7 +158,6 @@ class AMDController extends Controller
 
         if(isset($AMD)){
             $AMD->cantidad = $request->cantidad;
-            $AMD->unidadMedida = $request->unidadMedida;
             $AMD->articulo_insumo_id = $request->articulo_insumo_id;
             $AMD->articulo_manufacturado_id = $request->articulo_manufacturado_id;
             $AMD->save();
@@ -175,8 +173,33 @@ class AMDController extends Controller
      * @param  \App\Models\ArticuloManufacturadoDetalle  $articuloManufacturadoDetalle
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ArticuloManufacturadoDetalle $articuloManufacturadoDetalle)
+    public function destroy($id)
     {
-        //
+        $AMD = ArticuloManufacturadoDetalle::find($id);
+        if(isset($AMD)){
+            $AMD->delete($id);
+            return response('Ingrediente eliminado satisfactoriamente',200);
+        }else{
+            return response('No se encuentra el ingrediente', 405);
+        }
+
+    }
+
+    public function destroyDeleted($id)
+    {
+        $AMD = ArticuloManufacturadoDetalle::withTrashed()->where('id',$id)->first();
+        if (isset($AMD)) {
+            if($AMD->deleted_at == null){
+                $AMD->delete($id);
+                return response('Ingrediente eliminado satisfactoriamente', 200);
+            }else{
+                $AMD->deleted_at = null;
+                $AMD->save();
+                return response('Ingrediente restaurado satisfactoriamente', 200);
+            }
+
+        } else {
+            return response('No se encuentra el ingrediente', 405);
+        }
     }
 }

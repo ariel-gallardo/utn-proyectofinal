@@ -10,6 +10,7 @@ class Domicilio extends Model
 {
     use HasFactory, SoftDeletes;
     public $timestamps = false;
+    protected $softDelete = true;
     protected $fillable=[
         'calle',
         'numero',
