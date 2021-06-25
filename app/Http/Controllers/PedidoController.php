@@ -19,6 +19,22 @@ class PedidoController extends Controller
 
     }
 
+    public function getDatosPersona(){
+        $pedido = Pedido::where('usuario_id', Auth::id())
+            ->whereBetween('estado', [0, 6])
+            ->first();
+
+        if(isset($pedido)){
+            $pedido->with('cliente');
+            $pedido->cliente->load('persona');
+            $pedido->cliente->persona->load('domicilio');
+            return response($pedido,200);
+        }else{
+            return response('No se encuentra algun pedido para ese usuario',404);
+        }
+
+    }
+
     public function pedidoActual (){
         $pedido = Pedido::where('usuario_id', Auth::id())
                     ->whereBetween('estado', [0, 6])
@@ -30,28 +46,57 @@ class PedidoController extends Controller
             $man = $pedido->detallePedidosManufacturados->whereNull('borrado');
             $art = $pedido-> detallePedidosArticulos->whereNull('borrado');
 
+            $tiempoEstimado = 0;
+            $totalPrecio = 0;
 
             if(count($man) > 0 && count($art) > 0){
                 $array = array();
                 foreach($art as $a){
+                    $totalPrecio += $a->precioVenta;
                     $array[] = $a;
                 }
                 foreach($man as $m){
+                    $tiempoEstimado += $m->tiempoEstimadoCocina;
+                    $totalPrecio += $m->precioVenta;
                     $array[] = $m;
                 }
-                return response($array,200);
+                return response([
+                    'numero' => $pedido->id,
+                    'carrito' => $array,
+                    'total' => $totalPrecio,
+                    'tiempoEstimado' => $tiempoEstimado
+                ],200);
             }else if(count($man) > 0 && count($art) == 0){
-                return response($man,200);
+                return response([
+                    'numero' => $pedido->id,
+                    'carrito' => $man,
+                    'total' => $totalPrecio,
+                    'tiempoEstimado' => $tiempoEstimado
+                ],200);
             }else if(count($man) == 0 && count($art) > 0){
-                return response($art,200);
+                return response(
+                    [
+                        'numero' => $pedido->id,
+                        'carrito'=>$art,
+                        'total' => $totalPrecio,
+                        'tiempoEstimado' => $tiempoEstimado
+                    ]
+                    ,200);
             }else{
-                return response([],200);
+                return response([
+                    'numero' => $pedido->id,
+                    'carrito' => [],
+                    'total' => 0,
+                    'tiempoEstimado' => 0
+                ],200);
             }
 
         }else{
             return response('No hay un pedido abierto',405);
         }
     }
+
+
 
     /**
      * Store a newly created resource in storage.

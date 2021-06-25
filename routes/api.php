@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('usuario/datos',[UsuarioController::class, 'ver']);
     Route::resource('pedidos', PedidoController::class);
     Route::resource('detalle_pedido',DetallePedidoController::class);
+    Route::post('pedidos/datospersonales',[PedidoController::class, 'getDatosPersona']);
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
