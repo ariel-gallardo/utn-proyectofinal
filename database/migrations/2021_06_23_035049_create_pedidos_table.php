@@ -22,8 +22,8 @@ class CreatePedidosTable extends Migration
             $table->double('total')->nullable();
             $table->unsignedBigInteger('usuario_id');
             $table->foreign('usuario_id')->references('id')->on('usuarios');
-            $table->unsignedBigInteger('mercado_pago_datos_id')->nullable();
-            $table->foreign('mercado_pago_datos_id')->references('id')->on('mercado_pago_datos');
+            $table->string('identificadorPago')->nullable();
+            $table->foreign('identificadorPago')->references('identificadorPago')->on('mercado_pago_datos');
             $table->softDeletes();
         });
     }

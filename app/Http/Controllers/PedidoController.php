@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pedido;
+use App\Models\MercadoPagoDatos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use MercadoPago;
+MercadoPago\SDK::setAccessToken(config('services.mercadopago.token'));
 
 class PedidoController extends Controller
 {
@@ -35,7 +37,7 @@ class PedidoController extends Controller
 
     }
 
-    public function pedidoActual (){
+    public function pedidoActual (Request $request){
         $pedido = Pedido::where('usuario_id', Auth::id())
                     ->whereBetween('estado', [0, 6])
                     ->first();
@@ -48,19 +50,23 @@ class PedidoController extends Controller
 
             $tiempoEstimado = 0;
             $totalPrecio = 0;
+            $cantidad = 0;
 
             if(count($man) > 0 && count($art) > 0){
                 $array = array();
                 foreach($art as $a){
+                    $cantidad += $a->cantidad;
                     $totalPrecio += $a->precioVenta;
                     $array[] = $a;
                 }
                 foreach($man as $m){
+                    $cantidad += $m->cantidad;
                     $tiempoEstimado += $m->tiempoEstimadoCocina;
                     $totalPrecio += $m->precioVenta;
                     $array[] = $m;
                 }
                 return response([
+                    'cantidad' => $cantidad,
                     'numero' => $pedido->id,
                     'carrito' => $array,
                     'total' => $totalPrecio,
@@ -68,6 +74,7 @@ class PedidoController extends Controller
                 ],200);
             }else if(count($man) > 0 && count($art) == 0){
                 return response([
+                    'cantidad' => $cantidad,
                     'numero' => $pedido->id,
                     'carrito' => $man,
                     'total' => $totalPrecio,
@@ -76,6 +83,7 @@ class PedidoController extends Controller
             }else if(count($man) == 0 && count($art) > 0){
                 return response(
                     [
+                        'cantidad' => $cantidad,
                         'numero' => $pedido->id,
                         'carrito'=>$art,
                         'total' => $totalPrecio,
@@ -84,6 +92,7 @@ class PedidoController extends Controller
                     ,200);
             }else{
                 return response([
+                    'cantidad' => 0,
                     'numero' => $pedido->id,
                     'carrito' => [],
                     'total' => 0,
@@ -92,7 +101,8 @@ class PedidoController extends Controller
             }
 
         }else{
-            return response('No hay un pedido abierto',405);
+
+            $this->store($request);
         }
     }
 
@@ -152,5 +162,39 @@ class PedidoController extends Controller
     public function destroy(Pedido $pedido)
     {
         //
+    }
+
+    public function crearMercadoPago(Request $request){
+        $pedido = Pedido::find($request->pedido_id);
+        if(isset($pedido)){
+            $preference = new MercadoPago\Preference();
+            $preference->items = array();
+
+            foreach ($request->carrito as $producto) {
+
+                $item = new MercadoPago\Item();
+                $item->title = $producto->denominacion;
+                $item->quantity = $producto->cantidad;
+                $item->unit_price = $producto->precioVenta;
+                $preference->items[] = $item;
+            }
+
+            if (count($preference->items) > 0) {
+                $preference->save();
+                MercadoPagoDatos::create([
+                    'identificadorPago' => $preference->id
+                ]);
+                $pedido->identificadorPago = $preference->id;
+                $pedido->save();
+
+                return response([
+                    'identificador' => $pedido->identificadorPago,
+                    'mensaje' => 'Pedido generado correctamente'
+                ],200);
+            }
+        }else{
+            return response('No se encontro el pedido',405);
+        }
+
     }
 }

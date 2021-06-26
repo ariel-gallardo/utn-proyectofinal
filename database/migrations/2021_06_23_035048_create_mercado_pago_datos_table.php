@@ -14,8 +14,7 @@ class CreateMercadoPagoDatosTable extends Migration
     public function up()
     {
         Schema::create('mercado_pago_datos', function (Blueprint $table) {
-            $table->id();
-            $table->bigInteger('identificadorPago');
+            $table->string('identificadorPago')->index();
             $table->date('fechaCreacion')->nullable();
             $table->date('fechaAprobacion')->nullable();
             $table->string('formaPago')->nullable();

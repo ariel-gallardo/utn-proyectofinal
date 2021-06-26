@@ -1,0 +1,10 @@
+vendedor
+{"id":781605131,"nickname":"TETE8685136","password":"qatest7010","site_status":"active","email":"test_user_78706906@testuser.com"}
+
+TEST-d125704c-b252-4b4e-a7c0-7e8471d90f9e
+TEST-8064709148293067-062614-bf994e66e6a974080dfb63d2db3084a7-781605131
+
+
+cliente
+
+{"id":781609294,"nickname":"TETE5805747","password":"qatest5482","site_status":"active","email":"test_user_65837964@testuser.com"}

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetallePedido;
+use App\Models\Pedido;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DetallePedidoController extends Controller
 {
@@ -25,11 +27,15 @@ class DetallePedidoController extends Controller
      */
     public function store(Request $request)
     {
+        $pedido = Pedido::where('usuario_id', Auth::id())
+            ->whereBetween('estado', [0, 6])
+            ->first();
+
         $dP = DetallePedido::create([
             'articulo_insumo_id' => $request->articulo_insumo_id,
             'articulo_manufacturado_id' => $request->articulo_manufacturado_id,
             'cantidad' => $request->cantidad,
-            'pedido_id' => $request->pedido_id,
+            'pedido_id' => $pedido->id,
             'subtotal' => $request->subtotal
         ]);
         return response($dP->cantidad, 200);
@@ -54,6 +60,9 @@ class DetallePedidoController extends Controller
      */
     public function update(Request $request)
     {
+        $pedido = Pedido::where('usuario_id', Auth::id())
+            ->whereBetween('estado', [0, 6])
+            ->first();
 
         $detallePedido = null;
 
@@ -63,7 +72,7 @@ class DetallePedidoController extends Controller
                 'articulo_manufacturado_id',
                 $request->articulo_manufacturado_id
             )
-            ->where('pedido_id', $request->pedido_id)
+            ->where('pedido_id', $pedido->id)
             ->first();
 
         } else if ($request->articulo_insumo_id !== null) {
@@ -72,7 +81,7 @@ class DetallePedidoController extends Controller
                 'articulo_insumo_id',
                 $request->articulo_insumo_id
             )
-            ->where('pedido_id', $request->pedido_id)
+            ->where('pedido_id', $pedido->id)
             ->first();
 
         }
@@ -93,6 +102,10 @@ class DetallePedidoController extends Controller
      */
     public function destroy(Request $request)
     {
+        $pedido = Pedido::where('usuario_id', Auth::id())
+            ->whereBetween('estado', [0, 6])
+            ->first();
+
         $detallePedido = null;
 
         if ($request->articulo_manufacturado_id !== null) {
@@ -101,7 +114,7 @@ class DetallePedidoController extends Controller
                 'articulo_manufacturado_id',
                 $request->articulo_manufacturado_id
             )
-                ->where('pedido_id', $request->pedido_id)
+                ->where('pedido_id', $pedido->id)
                 ->first();
 
         } else if ($request->articulo_insumo_id !== null) {
@@ -110,7 +123,7 @@ class DetallePedidoController extends Controller
                 'articulo_insumo_id',
                 $request->articulo_insumo_id
             )
-                ->where('pedido_id', $request->pedido_id)
+                ->where('pedido_id', $pedido->id)
                 ->first();
         }
 

@@ -1,0 +1,5 @@
+curl -X POST \
+-H "Content-Type: application/json" \
+-H 'Authorization: Bearer TEST-5574394918063588-062518-77996b72bada49d4a63cab4c2f8e25b3-150521903' \
+"https://api.mercadopago.com/users/test_user" \
+-d '{"site_id":"MLA"}'

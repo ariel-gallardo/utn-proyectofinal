@@ -8,6 +8,7 @@ use App\Http\Controllers\ArticuloManufacturadoController;
 use App\Http\Controllers\AMDController;
 use App\Http\Controllers\DetallePedidoController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\MercadoPagoController;
 use App\Models\DetallePedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('pedidos', PedidoController::class);
     Route::resource('detalle_pedido',DetallePedidoController::class);
     Route::post('pedidos/datospersonales',[PedidoController::class, 'getDatosPersona']);
+    Route::post('mercadopago/generar',[PedidoController::class,'crearMercadoPago']);
+    Route::resource('mercadopago', MercadoPagoController::class);
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {

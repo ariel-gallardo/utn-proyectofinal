@@ -26,7 +26,7 @@ class ArticuloManufacturado extends Model
         //return $this->hasManyThrough(ArticuloManufacturadoDetalle::class,ArticuloInsumo::class, 'id', 'articulo_manufacturado_id', 'id', 'id')->withTrashedParents();
         //return $this->belongsToMany(ArticuloInsumo::class,'articulo_manufacturado_detalles', 'articulo_manufacturado_id', 'articulo_insumo_id', 'id', 'id');
         //return $this->with()->get();
-        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot(['cantidad', 'articulo_manufacturado_detalles.id as ids', 'articulo_manufacturado_detalles.deleted_at as borrado'])->withTrashed()->select(array('denominacion','articulo_insumos.unidadMedida   '));
+        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot(['cantidad', 'articulo_manufacturado_detalles.id as ids', 'articulo_manufacturado_detalles.deleted_at as borrado'])->withTrashed()->select(array('denominacion','articulo_insumos.unidadMedida'));
     }
 
     public function ingredientes(){

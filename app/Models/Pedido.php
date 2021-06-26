@@ -21,6 +21,7 @@ class Pedido extends Model
         'tipoEnvio',
         'total',
         'usuario_id',
+        'identificadorPago'
     ];
 
     public function detallePedidosManufacturados (){
