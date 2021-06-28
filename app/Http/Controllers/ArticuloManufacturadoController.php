@@ -17,6 +17,16 @@ class ArticuloManufacturadoController extends Controller
         //
     }
 
+    public function getTotalCosto(Request $request){
+        $aM = ArticuloManufacturado::find($request->id);
+        $aM->load('getPrecioVenta');
+        $totalCosto = 0;
+        foreach($aM->getPrecioVenta as $p){
+            $totalCosto += $p->precioCompra;
+        }
+        return response($totalCosto,200);
+    }
+
     public function ingredientes(Request $request){
         if($request->trashed){
             $aM = ArticuloManufacturado::withTrashed()->where('id',$request->id)->first();

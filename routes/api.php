@@ -9,6 +9,7 @@ use App\Http\Controllers\AMDController;
 use App\Http\Controllers\DetallePedidoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\MercadoPagoController;
+use App\Http\Controllers\FacturaController;
 use App\Models\DetallePedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,8 +25,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+//Login - Register
 Route::post('usuario/registrarse',[UsuarioController::class, 'registrar']);
 Route::post('usuario/loguearse', [UsuarioController::class, 'loguear']);
+Route::post('usuario/logoogle', [UsuarioController::class, 'logGoogle']);
 
 Route::resource('a_manufacturado', ArticuloManufacturadoController::class, ['except' => ['store', 'update', 'destroy']]);
 
@@ -46,6 +50,10 @@ Route::resource('r_insumo', ArticuloInsumoController::class, ['except' => ['stor
 
 Route::post('ingredientes/byArticulo', [ArticuloManufacturadoController::class, 'ingredientes']);
 
+Route::post('manufacturado/getTotalCosto', [ArticuloManufacturadoController::class, 'getTotalCosto']);
+
+Route::post('facturas/ver',[FacturaController::class, 'getFactura']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('usuario/desloguearse', [UsuarioController::class, 'desloguear']);
     Route::delete('usuario/borrar',[UsuarioController::class, 'borrar']);
@@ -56,6 +64,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pedidos/datospersonales',[PedidoController::class, 'getDatosPersona']);
     Route::post('mercadopago/generar',[PedidoController::class,'crearMercadoPago']);
     Route::resource('mercadopago', MercadoPagoController::class);
+    Route::put('mercadopago/actualizar', [MercadoPagoController::class, 'actualizar']);
+    Route::post('pedidos/actual', [PedidoController::class, 'pedidoActual']);
+    Route::post('pedidos/pagarEfectivo', [PedidoController::class, 'pagarEfectivo']);
+    Route::post('facturas/crear',[FacturaController::class, 'store']);
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
@@ -65,7 +77,27 @@ Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
     Route::resource('r_generals', RubroGeneralController::class);
     Route::resource('a_manufacturado', ArticuloManufacturadoController::class);
 
-    Route::post('pedidos/actual', [PedidoController::class,'pedidoActual']);
+    Route::post('/pedidos/p_cocinar', [PedidoController::class, 'getCocinar']);
+    Route::post('/pedidos/p_cocinandose', [PedidoController::class, 'getCocinandose']);
+
+    Route::post('/pedidos/c_acocinar', [PedidoController::class, 'setPACocinar']);
+    Route::post('/pedidos/c_acajero', [PedidoController::class, 'setPACajero']);
+    //Route::post('pedidos/actual', [PedidoController::class,'pedidoActual']);
+});
+
+Route::middleware(['auth:sanctum', 'cajero'])->group(function(){
+    Route::post('/pedidos/pendientes',[PedidoController::class, 'getPendientes']);
+    Route::post('/pedidos/listos',[PedidoController::class, 'getListos']);
+    Route::post('/pedidos/abusqueda', [PedidoController::class, 'setBusqueda']);
+    Route::post('/pedidos/aCocinero', [PedidoController::class, 'setCocinero']);
+    Route::post('/pedidos/adelivery', [PedidoController::class, 'setDelivery']);
+    Route::post('/pedidos/acliente', [PedidoController::class, 'setEntregado']);
+    Route::post('/pedidos/generarFactura', [PedidoController::class, 'enviarCorreo']);
+});
+
+Route::middleware(['auth:sanctum', 'delivery'])->group(function() {
+    Route::post('/pedidos/deliveries', [PedidoController::class, 'getDeliveries']);
+    Route::post('/pedidos/entregado', [PedidoController::class, 'setEntregado']);
 });
 
 Route::middleware(['auth:sanctum'], 'administrador')->group(

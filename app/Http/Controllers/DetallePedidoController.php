@@ -64,6 +64,7 @@ class DetallePedidoController extends Controller
             ->whereBetween('estado', [0, 6])
             ->first();
 
+
         $detallePedido = null;
 
         if ($request->articulo_manufacturado_id !== null) {

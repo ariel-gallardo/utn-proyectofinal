@@ -50,6 +50,44 @@ class UsuarioController extends Controller
         );
     }
 
+    public function logGoogle(Request $request){
+        $usuario = Usuario::where('correo', $request->email)->first();
+
+        if(isset($usuario)){
+            $usuario->load('persona');
+            $usuario->persona->load('domicilio');
+            $usuario->load('rol');
+            $nombre = $usuario->persona->nombre;
+            $apellido = $usuario->persona->apellido;
+            return response([
+                'nombre' => "$nombre $apellido",
+                'token' => $usuario->createToken('BuenSabor')->plainTextToken
+            ], 200);
+        }else{
+            $usuario = Usuario::create([
+                'correo' => $request->email,
+                'imagen' => $request->imagen,
+                'clave' => Hash::make('buensabor'),
+                'persona_id' => Persona::create([
+                    'nombre' => $request->nombre,
+                    'apellido' => $request->apellido,
+                    'telefono' => 1111111111,
+                    'domicilio_id' => Domicilio::create([
+                        'calle' => 'Sin Calle',
+                        'numero' => 1111,
+                        'localidad' => 'Sin localidad'
+                    ])->id
+                ])->id
+            ]);
+            $nombre = $request->nombre;
+            $apellido = $request->apellido;
+            return response([
+                'nombre' => "$nombre $apellido",
+                'token' => $usuario->createToken('BuenSabor')->plainTextToken
+            ], 200);
+        }
+    }
+
     public function loguear(Request $request)
     {
         $request->validate([

@@ -7,4 +7,15 @@ TEST-8064709148293067-062614-bf994e66e6a974080dfb63d2db3084a7-781605131
 
 cliente
 
-{"id":781609294,"nickname":"TETE5805747","password":"qatest5482","site_status":"active","email":"test_user_65837964@testuser.com"}
+{"id":781609294,"nickname":"TETE5805747","password":"	qatest5482","site_status":"active","email":"test_user_65837964@testuser.com"}
+
+
+
+444857034456-4e5plc8af8ub8b0kspae9m6nja6t6aag.apps.googleusercontent.com
+
+ss6baWxUcCg15m1VkVc5s7Rv
+
+thebuensabor@gmail.com
+legalizenlamilanesa
+
+11 ago 1990
