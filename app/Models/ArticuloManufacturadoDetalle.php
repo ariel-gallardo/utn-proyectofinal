@@ -17,5 +17,4 @@ class ArticuloManufacturadoDetalle extends Model
         'articulo_insumo_id',
         'articulo_manufacturado_id'
     ];
-
 }

@@ -27,6 +27,27 @@ class ArticuloManufacturadoController extends Controller
         return response($totalCosto,200);
     }
 
+    public function consStock(Request $request){
+        $am = ArticuloManufacturado::find($request->id);
+        if(isset($am)){
+            $am->load('ingredientes');
+            foreach($am->ingredientes as $i){
+                if($i['stockActual'] - $i['pivot']['cantidad']*$request->cantidad < 0){
+                    return response([
+                        'mensaje' => "No hay suficiente stock para $am->denominacion",
+                        'resultado' => false
+                    ],200);
+                }
+            }
+            return response([
+                'mensaje' => '',
+                'resultado' => true
+            ], 200);
+        }else{
+            return response('No se encuentra', 404);
+        }
+    }
+
     public function ingredientes(Request $request){
         if($request->trashed){
             $aM = ArticuloManufacturado::withTrashed()->where('id',$request->id)->first();

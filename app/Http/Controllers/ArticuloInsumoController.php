@@ -68,6 +68,25 @@ class ArticuloInsumoController extends Controller
         //
     }
 
+    public function consStock(Request $request){
+        $a = ArticuloInsumo::find($request->id);
+        if(isset($a)){
+            if($a->stockActual - $request->cantidad > 0){
+                return response([
+                    'mensaje' => "",
+                    'resultado' => true
+                ]);
+            }else{
+                return response([
+                    'mensaje' => "No hay suficiente stock de $a->denominacion",
+                    'resultado' => false
+                ]);
+            }
+        }else{
+            return response('No se encuentra el articuo', 404);
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -115,6 +134,7 @@ class ArticuloInsumoController extends Controller
     {
         //
     }
+
 
     public function destroyDeleted($id)
     {

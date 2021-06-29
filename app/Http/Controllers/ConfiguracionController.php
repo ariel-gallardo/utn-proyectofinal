@@ -14,7 +14,12 @@ class ConfiguracionController extends Controller
      */
     public function index()
     {
-        //
+        $config = Configuracion::find(1);
+        if(isset($config)){
+            return response($config,200);
+        }else{
+            return response('No existe configuracion',404);
+        }
     }
 
     /**
@@ -25,7 +30,18 @@ class ConfiguracionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $config = Configuracion::find(1);
+
+        if($config == null){
+            $config = Configuracion::create([
+                'cantidadCocineros' =>  $request->cantidadCocineros,
+                'emailEmpresa' => $request->emailEmpresa,
+                'tokenMercadoPago' => $request->tokenMercadoPago
+            ]);
+            return response($config, 200);
+        }else{
+            return response($config, 200);
+        }
     }
 
     /**
@@ -48,7 +64,14 @@ class ConfiguracionController extends Controller
      */
     public function update(Request $request, Configuracion $configuracion)
     {
-        //
+        $config = Configuracion::find(1);
+        if(isset($config)){
+            $config->cantidadCocineros = $request->cantidadCocineros;
+            $config->save();
+            return response('Guardado correctamente', 200);
+        }else{
+            return response('No se encuentra', 404);
+        }
     }
 
     /**

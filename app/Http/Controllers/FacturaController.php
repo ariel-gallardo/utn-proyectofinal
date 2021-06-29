@@ -143,7 +143,7 @@ class FacturaController extends Controller
                 'total' => $factura->totalVenta,
                 'descuento' => $factura->montoDescuento,
                 'fechaEntrega' => $factura->fecha,
-                'fechaEstimada' => $factura->horaEstimadaFin,
+                'fechaEstimada' => $factura->pedido->horaEstimadaFin,
                 'formaPago' => $factura->formaPago
             ],200);
         }else{

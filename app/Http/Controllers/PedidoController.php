@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Mail\Correo;
 use App\Models\Pedido;
+use App\Models\Configuracion;
 use App\Models\MercadoPagoDatos;
+use App\Models\ArticuloInsumo;
+use App\Models\ArticuloManufacturado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use MercadoPago;
@@ -64,6 +67,9 @@ class PedidoController extends Controller
             $totalPrecio = 0;
             $cantidad = 0;
 
+            $configuracion = Configuracion::find(1);
+            $numCocineros = $configuracion->cantidadCocineros;
+
             if(count($man) > 0 && count($art) > 0){
                 $array = array();
                 foreach($art as $a){
@@ -82,7 +88,7 @@ class PedidoController extends Controller
                     'numero' => $pedido->id,
                     'carrito' => $array,
                     'total' => $totalPrecio,
-                    'tiempoEstimado' => $tiempoEstimado,
+                    'tiempoEstimado' => $tiempoEstimado + ($tiempoEstimado/$numCocineros),
                     'estado' => $pedido->estado,
                     'tipoEnvio' => $pedido->tipoEnvio
                 ],200);
@@ -98,7 +104,7 @@ class PedidoController extends Controller
                     'numero' => $pedido->id,
                     'carrito' => $man,
                     'total' => $totalPrecio,
-                    'tiempoEstimado' => $tiempoEstimado,
+                    'tiempoEstimado' => $tiempoEstimado + ($tiempoEstimado / $numCocineros),
                     'estado' => $pedido->estado,
                     'tipoEnvio' => $pedido->tipoEnvio
                 ],200);
@@ -305,11 +311,40 @@ class PedidoController extends Controller
         }
     }
 
+    public function consumirIngredientes($numPedido){
+        $pedido = Pedido::find($numPedido);
+        $pedido->load('detallePedidosManufacturados');
+        $pedido->load('detallePedidosArticulos');
+
+        if (isset($pedido->detallePedidosManufacturados)) {
+            foreach ($pedido->detallePedidosManufacturados as $m) {
+                $prep = (ArticuloManufacturado::find($m['articulo_manufacturado_id'])->load('ingredientes'));
+                foreach($prep['ingredientes'] as $ingrediente){
+                    $i = ArticuloInsumo::find($ingrediente['ids']);
+                    $i['stockActual'] = $i['stockActual'] - $ingrediente['pivot']['cantidad'];
+                    $i->save();
+                }
+            }
+        }
+
+        if (isset($pedido->detallePedidosArticulos)) {
+            foreach ($pedido->detallePedidosArticulos as $a) {
+                $a['stockActual'] = $a['stockActual'] - $a['cantidad'];
+                $a->save();
+            }
+        }
+
+        return response($pedido, 200);
+    }
+
     //Armado Pagado Cocina Cocinado Listo Busqueda Delivery Facturado
     public function setPACocinar(Request $request)
     {
         $pedido = Pedido::where('id', $request->id)->first();
         if ($pedido) {
+            $pedido->load('detallePedidosManufacturados');
+            $pedido->load('detallePedidosArticulos');
+            $this->consumirIngredientes($request->id);
             $pedido->estado = 3;
             $pedido->save();
             return response("pedido n° $pedido->id enviado a cocinar", 200);

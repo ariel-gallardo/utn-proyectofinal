@@ -10,6 +10,7 @@ use App\Http\Controllers\DetallePedidoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\ConfiguracionController;
 use App\Models\DetallePedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,8 @@ Route::post('manufacturado/getTotalCosto', [ArticuloManufacturadoController::cla
 
 Route::post('facturas/ver',[FacturaController::class, 'getFactura']);
 
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('usuario/desloguearse', [UsuarioController::class, 'desloguear']);
     Route::delete('usuario/borrar',[UsuarioController::class, 'borrar']);
@@ -68,6 +71,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pedidos/actual', [PedidoController::class, 'pedidoActual']);
     Route::post('pedidos/pagarEfectivo', [PedidoController::class, 'pagarEfectivo']);
     Route::post('facturas/crear',[FacturaController::class, 'store']);
+
+    Route::post('stock/man', [ArticuloManufacturadoController::class, 'consStock']);
+    Route::post('stock/art', [ArticuloInsumoController::class, 'consStock']);
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
@@ -120,6 +126,7 @@ Route::middleware(['auth:sanctum'], 'administrador')->group(
         Route::post('ingredientes/updateTrashed', [AMDController::class, 'update']);
 
         Route::delete('ingredientes/logico/{id}', [AMDController::class, 'destroyDeleted']);
-
+        Route::resource('configuracion', ConfiguracionController::class);
+        Route::post('configuracion/datos', [ConfiguracionController::class,'index']);
     }
 );

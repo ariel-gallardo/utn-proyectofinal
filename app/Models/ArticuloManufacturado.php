@@ -30,7 +30,7 @@ class ArticuloManufacturado extends Model
     }
 
     public function ingredientes(){
-        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot(['cantidad', 'articulo_manufacturado_detalles.id as ids'])->select(array('denominacion', 'articulo_insumos.unidadMedida', 'precioCompra'));
+        return $this->belongsToMany(ArticuloInsumo::class, ArticuloManufacturadoDetalle::class)->withPivot(['cantidad', 'articulo_manufacturado_detalles.id as ids'])->select(array('denominacion', 'articulo_insumos.unidadMedida', 'precioCompra', 'articulo_insumos.stockActual'));
     }
 
     public function getPrecioVenta(){
