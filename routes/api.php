@@ -42,7 +42,6 @@ Route::get('articulos/cliente', [RubroArticuloController::class, 'indexCliente']
 Route::get('manufacturados', [RubroGeneralController::class, 'index']);
 Route::get('articulos/subcategoria/{id}', [RubroArticuloController::class, 'indexByPadre']);
 
-
 Route::resource('r_generals', RubroGeneralController::class, ['except' => ['store', 'update', 'destroy']]);
 Route::post('r_articulo/hijo',[RubroArticuloController::class, 'indexByPadre']);
 
@@ -74,6 +73,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('stock/man', [ArticuloManufacturadoController::class, 'consStock']);
     Route::post('stock/art', [ArticuloInsumoController::class, 'consStock']);
+
+    Route::post('getFacturasByCliente',[UsuarioController::class, 'getFacturas']);
+    Route::post('rol_usuario', [UsuarioController::class, 'getRolUsuario']);
 });
 
 Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
@@ -88,6 +90,8 @@ Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
 
     Route::post('/pedidos/c_acocinar', [PedidoController::class, 'setPACocinar']);
     Route::post('/pedidos/c_acajero', [PedidoController::class, 'setPACajero']);
+    Route::post('/am/calcularprecio',[ArticuloManufacturadoController::class, 'calcularPrecio']);
+
     //Route::post('pedidos/actual', [PedidoController::class,'pedidoActual']);
 });
 
@@ -99,6 +103,10 @@ Route::middleware(['auth:sanctum', 'cajero'])->group(function(){
     Route::post('/pedidos/adelivery', [PedidoController::class, 'setDelivery']);
     Route::post('/pedidos/acliente', [PedidoController::class, 'setEntregado']);
     Route::post('/pedidos/generarFactura', [PedidoController::class, 'enviarCorreo']);
+    Route::post('/pedidos/l_entrega', [PedidoController::class, 'setPACajero']);
+    Route::post('/pedidos/baja',[PedidoController::class, 'borrarPedido']);
+    Route::post('/facturas/todas',[FacturaController::class, 'getFacturas']);
+    Route::post('/facturas/borrar', [FacturaController::class, 'borrarFactura']);
 });
 
 Route::middleware(['auth:sanctum', 'delivery'])->group(function() {
@@ -128,5 +136,13 @@ Route::middleware(['auth:sanctum'], 'administrador')->group(
         Route::delete('ingredientes/logico/{id}', [AMDController::class, 'destroyDeleted']);
         Route::resource('configuracion', ConfiguracionController::class);
         Route::post('configuracion/datos', [ConfiguracionController::class,'index']);
+
+        Route::post('getAllUsuarios',[UsuarioController::class,'getAllUsuarios']);
+        Route::post('cambiarrol', [UsuarioController::class, 'cambiarRolUsuario']);
+        Route::post('getRankingComidas',[UsuarioController::class, 'getRankingComidas']);
+        Route::post('getRecaudacionDiaria', [UsuarioController::class, 'getRecaudacionesDia']);
+        Route::post('getRecaudacionMensual', [UsuarioController::class, 'getRecaudacionMensual']);
+        Route::post('getPedidosByCliente', [UsuarioController::class, 'getPedidosByCliente']);
+        Route::post('getGananciasByFecha',[UsuarioController::class,'getMontoGanancia']);
     }
 );

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Auth;
+
 
 class Usuario extends Authenticatable
 {
@@ -21,14 +23,13 @@ class Usuario extends Authenticatable
         'clave',
         'imagen',
         'rol_id',
-        'persona_id'
+        'persona_id',
     ];
 
     protected $hidden = [
         'clave',
         'deleted_at',
         'persona_id',
-        'rol_id',
     ];
 
     public function persona(){
@@ -38,4 +39,10 @@ class Usuario extends Authenticatable
     public function rol(){
         return $this->belongsTo(Rol::class);
     }
+
+    public function facturas(){
+        return $this->hasManyThrough(Factura::class,Pedido::class);
+    }
+
+
 }

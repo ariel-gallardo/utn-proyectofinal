@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon as Carbon;
 use App\Models\ArticuloInsumo;
 use App\Models\ArticuloManufacturado;
 use App\Models\Pedido;
@@ -18,6 +19,12 @@ class FacturaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function getFacturas(Request $request){
+        $facturas = Factura::all();
+        return response($facturas, 200);
+    }
+
     public function index()
     {
         //
@@ -150,6 +157,17 @@ class FacturaController extends Controller
             return response('No se encontro la factura', 404);
         }
 
+    }
+
+    public function borrarFactura(Request $request){
+        $factura = Factura::where('id',$request->id)->first();
+        if(isset($factura)){
+            $factura->deleted_at = Carbon::now();
+            $factura->save();
+            return response('Factura eliminada',200);
+        }else{
+            return response('No se encuentra',404);
+        }
     }
 
     public function enviarCorreo($numero, $correo)

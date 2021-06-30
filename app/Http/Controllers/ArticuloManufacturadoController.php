@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArticuloManufacturado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ArticuloManufacturadoController extends Controller
 {
@@ -79,7 +80,7 @@ class ArticuloManufacturadoController extends Controller
         $request->validate([
             'denominacion' => 'required | string | unique:articulo_manufacturados',
             'tiempoEstimadoCocina' => 'required | numeric',
-            'precioVenta' => 'required | numeric',
+            //'precioVenta' => 'required | numeric',
             'rubro_generals_id' => 'required',
             'imagen' => 'sometimes| base64image'
         ]);
@@ -87,7 +88,7 @@ class ArticuloManufacturadoController extends Controller
         ArticuloManufacturado::create([
             'denominacion' => $request->denominacion,
             'tiempoEstimadoCocina' => $request->tiempoEstimadoCocina,
-            'precioVenta' => $request->precioVenta,
+            //'precioVenta' => $request->precioVenta,
             'imagen' => $request->imagen,
             'rubro_generals_id' => $request->rubro_generals_id
         ]);
@@ -149,6 +150,22 @@ class ArticuloManufacturadoController extends Controller
     public function destroy(ArticuloManufacturado $articuloManufacturado)
     {
         //
+    }
+
+    public function calcularPrecio(Request $request){
+        $am = ArticuloManufacturado::find($request->id);
+        if(isset($am)){
+                $consulta = DB::select("SELECT articulo_manufacturados.precioVenta+SUM(articulo_insumos.precioVenta)*0.50 as calculado from
+            articulo_manufacturado_detalles INNER JOIN articulo_insumos ON articulo_insumo_id = articulo_insumos.id INNER JOIN articulo_manufacturados
+            ON articulo_manufacturados.id = articulo_manufacturado_detalles.articulo_manufacturado_id
+            WHERE articulo_manufacturados.id = $request->id AND articulo_manufacturado_detalles.deleted_at IS NULL");
+            foreach($consulta as $c){
+                $am->precioVenta = $c->calculado;
+            }
+            $am->save();
+            return response('Modificado correctamente', 200);
+        }
+         return response('No se encuentra', 404);
     }
 
     public function destroyDeleted($id)

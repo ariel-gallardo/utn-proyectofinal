@@ -11,6 +11,7 @@ use App\Models\ArticuloManufacturado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use MercadoPago;
+use Carbon\Carbon as Carbon;
 MercadoPago\SDK::setAccessToken(config('services.mercadopago.token'));
 use Illuminate\Support\Facades\Mail;
 
@@ -45,18 +46,28 @@ class PedidoController extends Controller
 
     public function pedidoActual (Request $request){
 
+        $pedido = null;
+
         if(isset($request->pcliente)){
+
             $pedido = Pedido::where('usuario_id', Auth::id())
                 ->whereBetween('estado', [0, 7])
+                ->whereBetween('tipoEnvio',[0,1])
+                ->whereNotNull('fecha')
+                ->whereNull('deleted_at')
+                ->orderBy('id','DESC')
                 ->first();
         }else{
             $pedido = Pedido::where('usuario_id', Auth::id())
                 ->whereBetween('estado', [0, 6])
+                //->whereNull('tipoEnvio')
+                ->whereNull('deleted_at')
+                ->whereNull('fecha')
                 ->first();
         }
 
 
-        if($pedido){
+        if($pedido != null){
             $pedido->with('detallePedidosManufacturados');
             $pedido->with('detallePedidosArticulos');
 
@@ -74,13 +85,13 @@ class PedidoController extends Controller
                 $array = array();
                 foreach($art as $a){
                     $cantidad += $a->cantidad;
-                    $totalPrecio += $a->precioVenta;
+                    $totalPrecio += $a->subtotal;
                     $array[] = $a;
                 }
                 foreach($man as $m){
                     $cantidad += $m->cantidad;
-                    $tiempoEstimado += $m->tiempoEstimadoCocina;
-                    $totalPrecio += $m->precioVenta;
+                    $tiempoEstimado += $m->tiempoEstimadoCocina * $m->cantidad;
+                    $totalPrecio += $m->subtotal;
                     $array[] = $m;
                 }
                 return response([
@@ -88,37 +99,39 @@ class PedidoController extends Controller
                     'numero' => $pedido->id,
                     'carrito' => $array,
                     'total' => $totalPrecio,
-                    'tiempoEstimado' => $tiempoEstimado + ($tiempoEstimado/$numCocineros),
+                    'tiempoEstimado' => ($tiempoEstimado + ($tiempoEstimado/$numCocineros)),
                     'estado' => $pedido->estado,
                     'tipoEnvio' => $pedido->tipoEnvio
                 ],200);
             }else if(count($man) > 0 && count($art) == 0){
+                $array = array();
                 foreach ($man as $m) {
                     $cantidad += $m->cantidad;
-                    $tiempoEstimado += $m->tiempoEstimadoCocina;
-                    $totalPrecio += $m->precioVenta;
+                    $tiempoEstimado += $m->tiempoEstimadoCocina * $m->cantidad;
+                    $totalPrecio += $m->subtotal;
                     $array[] = $m;
                 }
                 return response([
                     'cantidad' => $cantidad,
                     'numero' => $pedido->id,
-                    'carrito' => $man,
+                    'carrito' => $array,
                     'total' => $totalPrecio,
-                    'tiempoEstimado' => $tiempoEstimado + ($tiempoEstimado / $numCocineros),
+                    'tiempoEstimado' => ($tiempoEstimado + ($tiempoEstimado / $numCocineros)),
                     'estado' => $pedido->estado,
                     'tipoEnvio' => $pedido->tipoEnvio
                 ],200);
             }else if(count($man) == 0 && count($art) > 0){
+                $array = array();
                 foreach ($art as $a) {
                     $cantidad += $a->cantidad;
-                    $totalPrecio += $a->precioVenta;
+                    $totalPrecio += $a->subtotal;
                     $array[] = $a;
                 }
                 return response(
                     [
                         'cantidad' => $cantidad,
                         'numero' => $pedido->id,
-                        'carrito'=>$art,
+                        'carrito'=>$array,
                         'total' => $totalPrecio,
                         'tiempoEstimado' => $tiempoEstimado,
                         'estado' => $pedido->estado,
@@ -158,6 +171,7 @@ class PedidoController extends Controller
     public function pagarEfectivo(Request $request){
         $pedido = Pedido::find($request->numero);
         if(isset($pedido)){
+            $pedido->fecha = Carbon::now();
             $pedido->horaEstimadaFin = $request->horaEstimadaFin;
             $pedido->tipoEnvio = $request->tipoEnvio;
             $pedido->total = $request->total;
@@ -404,9 +418,18 @@ class PedidoController extends Controller
      * @param  \App\Models\Pedido  $pedido
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Pedido $pedido)
+    public function destroy(Request $request, Pedido $pedido)
     {
-        //
+
+    }
+
+    public function borrarPedido(Request $request)
+    {
+        $pedido = Pedido::find($request->id);
+        if (isset($pedido)) {
+            $pedido->deleted_at = Carbon::now();
+            $pedido->save();
+        }
     }
 
     public function crearMercadoPago(Request $request){
@@ -429,6 +452,7 @@ class PedidoController extends Controller
                 MercadoPagoDatos::create([
                     'identificadorPago' => $preference->id
                 ]);
+                $pedido->fecha = Carbon::now();
                 $pedido->identificadorPago = $preference->id;
                 $pedido->save();
 

@@ -7,6 +7,8 @@ use App\Models\Persona;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioController extends Controller
 {
@@ -48,6 +50,18 @@ class UsuarioController extends Controller
             ],
             201
         );
+    }
+
+    public function getFacturas(Request $request){
+        $usuario = Usuario::find(Auth::id());
+        if(isset($usuario)){
+            $usuario->load('facturas');
+            if(count($usuario->facturas) > 0){
+                return response($usuario->facturas,200);
+            }else{
+                return response([],200);
+            }
+        }
     }
 
     public function logGoogle(Request $request){
@@ -195,5 +209,77 @@ class UsuarioController extends Controller
         $usuario->persona->load('domicilio');
         $usuario->load('rol');
         return response(['usuario' => $usuario],200);
+    }
+
+    public function getAllUsuarios(Request $request){
+        $usuarios = Usuario::all();
+        return response($usuarios,200);
+    }
+
+    public function cambiarRolUsuario(Request $request){
+        $usuario = Usuario::find($request->id);
+        if(isset($usuario)){
+            $usuario->rol_id = $request->rol_id;
+            return response('Rol cambiado con exito',200);
+        }else{
+            return response('Usuario no encontrado');
+        }
+    }
+
+    public function getRankingComidas(Request $request)
+    {
+        $consulta = DB::select(
+            "
+        SELECT articulo_manufacturados.denominacion as Manufacturado,
+        articulo_insumos.denominacion as Insumo, sum(cantidad) as cantidad from facturas
+        INNER JOIN detalle_facturas ON factura_id = facturas.id
+        LEFT JOIN articulo_insumos ON articulo_insumos.id = articulo_insumo_id
+        LEFT JOIN articulo_manufacturados ON
+        articulo_manufacturado_id = articulo_manufacturados.id
+        WHERE fecha BETWEEN '$request->inicial' AND '$request->final' GROUP BY articulo_manufacturado_id,
+        articulo_insumo_id ORDER BY sum(cantidad)"
+        );
+        if (isset($consulta)) {
+            return response($consulta, 200);
+        }
+    }
+
+    public function getRecaudacionesDia(Request $request){
+        $consulta = DB::select("select DATE(fecha) as dia, sum(totalVenta) as Total
+        from facturas WHERE fecha BETWEEN '$request->inicial' and '$request->final' GROUP BY fecha");
+        if(isset($consulta)){
+            return response($consulta,200);
+        }
+    }
+
+    public function getRecaudacionMensual(Request $request)
+    {
+        $consulta = DB::select("select MONTH(fecha) as Mes, sum(totalVenta) as Total from facturas WHERE fecha BETWEEN '$request->inicial' AND '$request->final' GROUP BY MONTH(fecha);");
+        if(isset($consulta)){
+            return response($consulta, 200);
+        }
+
+    }
+
+    public function getPedidosByCliente(Request $request){
+        $consulta = DB::select(
+            "select usuario_id as cliente_id, CONCAT(personas.nombre, ' ', personas.apellido) as nombre, count(pedidos.id) as pedidos from pedidos INNER JOIN usuarios ON usuarios.id = usuario_id INNER JOIN personas ON personas.id = usuarios.persona_id WHERE fecha BETWEEN '$request->inicial' AND '$request->final' GROUP BY usuario_id;");
+        if(isset($consulta)){
+            return response($consulta,200);
+        }
+    }
+
+    public function getMontoGanancia(Request $request){
+        $consulta = DB::select(
+            "select SUM(totalVenta)-SUM(totalVenta*0.50) as Ganancias from facturas WHERE facturas.deleted_at IS NULL AND fecha BETWEEN '$request->inicio' AND '$request->final';"
+        );
+        if(isset($consulta)){
+            return response($consulta,200);
+        }
+    }
+
+    public function getRolUsuario(Request $request){
+        $usuario = Auth::user()->rol_id;
+        return response($usuario,200);
     }
 }
