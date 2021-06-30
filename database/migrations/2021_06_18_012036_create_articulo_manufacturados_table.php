@@ -17,7 +17,7 @@ class CreateArticuloManufacturadosTable extends Migration
             $table->id();
             $table->integer('tiempoEstimadoCocina');
             $table->string('denominacion');
-            $table->double('precioVenta');
+            $table->double('precioVenta')->default(0);
             $table->text('imagen')->nullable();
             $table->unsignedBigInteger('rubro_generals_id')->nullable();
             $table->foreign('rubro_generals_id')->references('id')->on('rubro_generals');

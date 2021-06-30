@@ -97,7 +97,6 @@ class ArticuloInsumoController extends Controller
     public function update(Request $request, ArticuloInsumo $articuloInsumo)
     {
         $request->validate([
-            'denominacion' => 'required | string | unique:articulo_insumos',
             'precioCompra' => 'required | numeric',
             'precioVenta' => 'required | numeric',
             'stockActual' => 'required | integer',

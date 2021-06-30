@@ -74,12 +74,27 @@ class PedidoController extends Controller
             $man = $pedido->detallePedidosManufacturados->whereNull('borrado');
             $art = $pedido-> detallePedidosArticulos->whereNull('borrado');
 
+            $tiempoEnCocina = 0;
             $tiempoEstimado = 0;
             $totalPrecio = 0;
             $cantidad = 0;
 
             $configuracion = Configuracion::find(1);
             $numCocineros = $configuracion->cantidadCocineros;
+
+            $pedidos = Pedido::all();
+            foreach($pedidos as $p){
+                if($p['estado'] >= 2 && $p['estado'] <= 3){
+                    $p->load('detallePedidosManufacturados');
+                    foreach ($p->detallePedidosManufacturados as $m) {
+                        $tiempoEnCocina = $m->tiempoEstimadoCocina * $m->cantidad;
+                    }
+                }
+            }
+            if($tiempoEnCocina > 0){
+                $tiempoEnCocina = $tiempoEnCocina / $numCocineros;
+            }
+
 
             if(count($man) > 0 && count($art) > 0){
                 $array = array();
@@ -99,7 +114,7 @@ class PedidoController extends Controller
                     'numero' => $pedido->id,
                     'carrito' => $array,
                     'total' => $totalPrecio,
-                    'tiempoEstimado' => ($tiempoEstimado + ($tiempoEstimado/$numCocineros)),
+                    'tiempoEstimado' => ($tiempoEstimado + $tiempoEnCocina),
                     'estado' => $pedido->estado,
                     'tipoEnvio' => $pedido->tipoEnvio
                 ],200);
@@ -116,7 +131,7 @@ class PedidoController extends Controller
                     'numero' => $pedido->id,
                     'carrito' => $array,
                     'total' => $totalPrecio,
-                    'tiempoEstimado' => ($tiempoEstimado + ($tiempoEstimado / $numCocineros)),
+                    'tiempoEstimado' => ($tiempoEstimado + $tiempoEnCocina),
                     'estado' => $pedido->estado,
                     'tipoEnvio' => $pedido->tipoEnvio
                 ],200);

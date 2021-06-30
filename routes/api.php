@@ -82,6 +82,7 @@ Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
     Route::resource('ingredientes', AMDController::class);
     Route::resource('r_articulo',RubroArticuloController::class);
     Route::resource('r_insumo',ArticuloInsumoController::class);
+    //Route::put('modlechuga', [ArticuloInsumoController::class, 'update']);
     Route::resource('r_generals', RubroGeneralController::class);
     Route::resource('a_manufacturado', ArticuloManufacturadoController::class);
 
@@ -144,5 +145,9 @@ Route::middleware(['auth:sanctum'], 'administrador')->group(
         Route::post('getRecaudacionMensual', [UsuarioController::class, 'getRecaudacionMensual']);
         Route::post('getPedidosByCliente', [UsuarioController::class, 'getPedidosByCliente']);
         Route::post('getGananciasByFecha',[UsuarioController::class,'getMontoGanancia']);
+
+        Route::resource('r_insumo', ArticuloInsumoController::class);
+        Route::resource('a_manufacturado', ArticuloManufacturadoController::class);
+
     }
 );
