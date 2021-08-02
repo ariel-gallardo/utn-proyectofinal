@@ -52,11 +52,12 @@ class PedidoController extends Controller
 
             $pedido = Pedido::where('usuario_id', Auth::id())
                 ->whereBetween('estado', [0, 7])
+                ->WhereNotNull('fecha')
                 ->whereBetween('tipoEnvio',[0,1])
-                ->whereNotNull('fecha')
                 ->whereNull('deleted_at')
                 ->orderBy('id','DESC')
                 ->first();
+
         }else{
             $pedido = Pedido::where('usuario_id', Auth::id())
                 ->whereBetween('estado', [0, 6])
@@ -341,16 +342,22 @@ class PedidoController extends Controller
     }
 
     public function consumirIngredientes($numPedido){
+    //public function consumirIngredientes(Request $request){
+       // $numPedido = $request["numpedido"];
+
         $pedido = Pedido::find($numPedido);
         $pedido->load('detallePedidosManufacturados');
         $pedido->load('detallePedidosArticulos');
 
         if (isset($pedido->detallePedidosManufacturados)) {
+            
             foreach ($pedido->detallePedidosManufacturados as $m) {
                 $prep = (ArticuloManufacturado::find($m['articulo_manufacturado_id'])->load('ingredientes'));
+                $variables = [];
                 foreach($prep['ingredientes'] as $ingrediente){
-                    $i = ArticuloInsumo::find($ingrediente['ids']);
-                    $i['stockActual'] = $i['stockActual'] - $ingrediente['pivot']['cantidad'];
+                    $i = ArticuloInsumo::find($ingrediente['pivot']['articulo_insumo_id']);
+                    $i['stockActual'] = $i['stockActual'] - ($ingrediente['pivot']['cantidad'] * $m['cantidad']);
+                     //$variables[] =  [$i['stockActual'], $ingrediente['pivot']['cantidad'], $i['stockActual'] - $ingrediente['pivot']['cantidad']];
                     $i->save();
                 }
             }
@@ -362,8 +369,6 @@ class PedidoController extends Controller
                 $a->save();
             }
         }
-
-        return response($pedido, 200);
     }
 
     //Armado Pagado Cocina Cocinado Listo Busqueda Delivery Facturado

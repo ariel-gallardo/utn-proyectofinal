@@ -65,7 +65,9 @@ class UsuarioController extends Controller
     }
 
     public function logGoogle(Request $request){
-        $usuario = Usuario::where('correo', $request->email)->first();
+        $usuario = Usuario::where('correo', $request->email)
+        ->whereNull('deleted_at')
+        ->first();
 
         if(isset($usuario)){
             $usuario->load('persona');

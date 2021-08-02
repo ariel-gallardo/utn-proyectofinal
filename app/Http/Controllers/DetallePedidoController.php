@@ -29,6 +29,8 @@ class DetallePedidoController extends Controller
     {
         $pedido = Pedido::where('usuario_id', Auth::id())
             ->whereBetween('estado', [0, 6])
+            ->whereNull('fecha')
+            ->whereNull('horaEstimadaFin')
             ->first();
 
         $dP = DetallePedido::create([

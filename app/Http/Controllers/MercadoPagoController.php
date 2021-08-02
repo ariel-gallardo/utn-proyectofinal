@@ -39,11 +39,13 @@ class MercadoPagoController extends Controller
             ->whereBetween('estado', [0, 6])
             ->first();
 
-        if($pedido->identificadorPago === null){
+        if(!isset($pedido->identificadorPago)){
             //MP_PUBLIC_KEY=TEST-d0b63ad6-fb0d-4b3a-9c89-a1f3ee4a7d62
             //MP_ACCESS_TOKEN=TEST-5574394918063588-062518-77996b72bada49d4a63cab4c2f8e25b3-150521903
             SDK::setAccessToken(config('services.mercadopago.token'));
 
+            $pedido->estado = 1;
+            $pedido->fecha = Carbon::now();
             $pedido->horaEstimadaFin = new \DateTime($request->horaEstimadaFin);
             $pedido->tipoEnvio = $request->tipoEnvio;
             $pedido->total = $request->total;

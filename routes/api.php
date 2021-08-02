@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::post('asdf', [PedidoController::class, 'consumirIngredientes']);
 //Login - Register
 Route::post('usuario/registrarse',[UsuarioController::class, 'registrar']);
 Route::post('usuario/loguearse', [UsuarioController::class, 'loguear']);
@@ -53,7 +53,6 @@ Route::post('ingredientes/byArticulo', [ArticuloManufacturadoController::class, 
 Route::post('manufacturado/getTotalCosto', [ArticuloManufacturadoController::class, 'getTotalCosto']);
 
 Route::post('facturas/ver',[FacturaController::class, 'getFactura']);
-
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -92,6 +91,7 @@ Route::middleware(['auth:sanctum', 'cocinero'])->group(function () {
     Route::post('/pedidos/c_acocinar', [PedidoController::class, 'setPACocinar']);
     Route::post('/pedidos/c_acajero', [PedidoController::class, 'setPACajero']);
     Route::post('/am/calcularprecio',[ArticuloManufacturadoController::class, 'calcularPrecio']);
+    
 
     //Route::post('pedidos/actual', [PedidoController::class,'pedidoActual']);
 });
